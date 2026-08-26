@@ -26,4 +26,7 @@ echo "==> 5. Deploying UI layer"
 kubectl apply -f ui/ui-deployment.yaml
 kubectl apply -f ui/ui-service.yaml
 
+echo "==> 6. Applying ingress"
+kubectl apply -f idream-ingress.yaml
+
 echo "==> Script ends here <=="
