@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idream-ui
+  namespace: idream
+  labels:
+    app: idream-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: idream-ui
+  template:
+    metadata:
+      labels:
+        app: idream-ui
+    spec:
+      containers:
+        - name: idream-ui
+          image: devsecopstrainer/cicd-react-ui:v2
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: API_BASE_URL
+              value: "/api"
+
+          # ── Health check ─────────────────────────────────────
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 15
+
+          # ── Resource limits ──────────────────────────────────
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "150m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"

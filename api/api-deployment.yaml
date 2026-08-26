@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idream-api
+  namespace: idream
+  labels:
+    app: idream-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: idream-api
+  template:
+    metadata:
+      labels:
+        app: idream-api
+    spec:
+      containers:
+        - name: idream-api
+          image: devsecopstrainer/cicd-ms-api:v2
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          # ── DB connection from Secret ────────────────────────
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: db-host
+
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: db-port
+
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: db-name
+
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: db-username
+
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: db-password
+
+            # Spring Boot reads SPRING_DATASOURCE_URL automatically
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+
+          # ── ConfigMap env vars ───────────────────────────────
+          envFrom:
+            - configMapRef:
+                name: idream-api-config
+
+          # ── Health checks ────────────────────────────────────
+          readinessProbe:
+            httpGet:
+              path: /api/courses/stats
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /api/courses/stats
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 3
+
+          # ── Resource limits ──────────────────────────────────
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
