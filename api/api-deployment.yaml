@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: idream-api
-          image: devsecopstrainer/cicd-ms-api:v2
+          image: devsecopstrainer/cicd-ms-api:${IMAGE_TAG}
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
