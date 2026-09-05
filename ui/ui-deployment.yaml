@@ -23,7 +23,7 @@ spec:
             - containerPort: 80
           env:
             - name: API_BASE_URL
-              value: "/api"
+              value: "http://www.pujasaman.com/api"
 
           # ── Health check ─────────────────────────────────────
           readinessProbe:
